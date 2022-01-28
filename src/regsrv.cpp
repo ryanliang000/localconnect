@@ -11,7 +11,6 @@
 #include "log.h"
 #include "myerr.h"
 #include "pub.h"
-#include "error.h"
 extern int errno;
 #include "xevent.h"
 #include "tsockproc.h"
@@ -110,6 +109,7 @@ int cb_proc_accept(int srvfd, int filter){
 int proc_close_s(int fd, int filter){
     unregxevent(fd);
     close(fd); 
+    return 0;
 }
 int proc_close(int fd, int filter=-1){
     if (fd == -1) return 0;

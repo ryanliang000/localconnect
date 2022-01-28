@@ -11,7 +11,6 @@
 #include "log.h"
 #include "myerr.h"
 #include "pub.h"
-#include "error.h"
 #include "xevent.h"
 #include "tsockproc.h"
 extern int errno;
@@ -48,7 +47,8 @@ int cb_proc_recv(int, int);
 int cb_proc_send(int, int);
 int cb_proc_error(int fd, int filter){
    unregxevent(fd);
-   close(fd);
+   close(fd); 
+   return 0;
 }
 int cb_proc_accept(int srvfd, int filter){
     LOG_I("process accept: %d", srvfd);
@@ -112,6 +112,7 @@ int proc_close(int fd, int filter=-1){
 	tsocks[fd].reset();
 	tsocks[dstfd].reset();
 	LOG_R("connection [%d-%d] closed.", fd, dstfd);
+    return 0;
 }
 int cb_proc_recv(int fd, int filter){
   int proc_result = recvsockandsend(tsocks[fd]);

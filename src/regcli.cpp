@@ -11,7 +11,6 @@
 #include "log.h"
 #include "myerr.h"
 #include "pub.h"
-#include "error.h"
 #include "xevent.h"
 #include "tsockproc.h"
 #include "pthread.h"
@@ -71,6 +70,7 @@ int cb_proc_error(int fd, int filter){
    regcli_curr--;
    regcli_wait--;
    try_regclient();
+   return 0;
 }
 int cb_proc_accept(int srvfd, int filter){
     LOG_I("process accept: %d", srvfd);

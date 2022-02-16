@@ -115,7 +115,11 @@ int proc_close(int fd, int filter=-1){
     return 0;
 }
 int cb_proc_recv(int fd, int filter){
+#ifdef CLIENT_DECODE
+  int proc_result = recvsockandsendencoded(tsocks[fd], encodekey);
+#else
   int proc_result = recvsockandsend(tsocks[fd]);
+#endif
   if (proc_result < 0){
     proc_close(fd, filter);
   }

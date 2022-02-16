@@ -72,6 +72,7 @@ int cb_proc_error(int fd, int filter){
    try_regclient();
    return 0;
 }
+
 int cb_proc_accept(int srvfd, int filter){
     LOG_I("process accept: %d", srvfd);
 	int fsrvfd = -1, n=0; 
@@ -108,7 +109,8 @@ int cb_proc_accept(int srvfd, int filter){
     tsocks[srvfd] = tsock(srvfd, fsrvfd, sock_client);
 	tsocks[fsrvfd] = tsock(fsrvfd, srvfd, sock_remote);
 	unregxevent(srvfd);
-    setsockkeepalive(fsrvfd);
+    setsockkeepalive(fsrvfd, 120);
+    setsockkeepalive(srvfd, 120);
 	regxevent(fsrvfd, xfilter_read, cb_proc_recv);
     regxevent(srvfd, xfilter_read, cb_proc_recv);
     LOG_R("channel build succ for %d-%d", srvfd, fsrvfd);

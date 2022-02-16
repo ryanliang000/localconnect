@@ -197,7 +197,8 @@ void regclient(){
         close(regfd);
         continue;
     }
-    setsockkeepalive(regfd);
+    settimeout(regfd, 360);
+    setsockkeepalive(regfd, 120);
     tsocks[regfd] = tsock(regfd, -1, sock_server);
     regxevent(regfd, xfilter_read, cb_proc_accept);
     LOG_R("reg client %d succ", regfd);

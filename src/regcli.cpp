@@ -120,12 +120,14 @@ int cb_proc_accept(int srvfd, int filter){
 }
 
 int proc_close(int fd, int filter=-1){
-	int dstfd = tsocks[fd].dstfd;
-	if (fd != -1){unregxevent(fd); close(fd); tsocks[fd].reset();}
+	if (fd == -1) return -1;
+    int dstfd = tsocks[fd].dstfd;
+	{unregxevent(fd); close(fd); tsocks[fd].reset();}
 	if (dstfd != -1){unregxevent(dstfd);close(dstfd); tsocks[dstfd].reset();}
 	LOG_R("connection [%d-%d] closed.", fd, dstfd);
 	regcli_curr--;
     try_regclient();
+    return 0;
 }
 int cb_proc_recv(int fd, int filter){
   int dstfd = tsocks[fd].dstfd;

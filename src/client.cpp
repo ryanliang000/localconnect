@@ -58,7 +58,8 @@ int cb_proc_accept(int srvfd, int filter){
         LOG_E("accept error[%d-%s], ignored!", errno, strerror(errno));
         return -1;
     }
-    setsockkeepalive(clifd);
+    LOG_D("accept connect %d", clifd);
+    setsockkeepalive(clifd, 120);
 	// connect to forward server
 	if ((fsrvfd = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 		LOG_E("forward socket init failed");
@@ -97,7 +98,6 @@ int cb_proc_accept(int srvfd, int filter){
 		close(fsrvfd);
 		return -1;
 	}
-    setnonblock(fsrvfd);
     tsocks[clifd] = tsock(clifd, fsrvfd, sock_client);
 	tsocks[fsrvfd] = tsock(fsrvfd, clifd, sock_remote);
 	regxevent(fsrvfd, xfilter_read, cb_proc_recv);

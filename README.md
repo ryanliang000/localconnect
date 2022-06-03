@@ -1,5 +1,5 @@
 # localconnect
-local port intranet redirect to internet
+local tcp port in an intranet redirect to the internet.
 
 there are 3 executed output will be generated
 1. regsrv

@@ -1,5 +1,5 @@
 # localconnect
-local tcp port in an intranet redirect to the internet.
+local tcp port in an intranet redirect to the internet, then provide service to another comupter in another intranet.
 
 there are 3 executed output will be generated
 1. regsrv

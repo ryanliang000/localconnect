@@ -131,6 +131,7 @@ int cb_proc_recv(int fd, int filter){
   return proc_result;
 }
 int cb_proc_send(int fd, int filter){
+  int dstfd = tsocks[fd].dstfd;
   int proc_result = sendsock(tsocks[fd]);
   if (proc_result < 0){
      proc_close(fd, filter);

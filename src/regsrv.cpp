@@ -77,7 +77,7 @@ int apply_client_fd(int fd, const char* buffer){
    LOG_R("apply serv client fail, no unused serv client for exist for %s<%d>", buffer+1, fd);
    return -1;
 } 
-int reg_client_fd(int fd, const char* buffer){
+void reg_client_fd(int fd, const char* buffer){
    int h = hash_username(buffer);
    pairfds[fd] = pairfd(fd, h);
    LOG_R("register service client for %s<%d>", buffer+1, fd);
@@ -178,7 +178,8 @@ int cb_proc_recv(int fd, int filter){
   return 0;   
 }
 int cb_proc_send(int fd, int filter){
-  int proc_result = sendsock(tsocks[fd]);
+  int dstfd = tsocks[fd].dstfd;
+  int proc_result = sendsock(tsocks[dstfd]);
   if (proc_result < 0){
      proc_close(fd, filter);
   } else if  (proc_result == 0){

@@ -147,7 +147,11 @@ int main(int argc, char** argv){
     signal(SIGPIPE, procperr);
     signal(SIGCHLD, SIG_IGN);
     if (argc < 6){
-        err_quit( "Usage: %s forwardip forwardport servport username encodekey\n", argv[0]);
+#ifdef CLIENT_DECODE
+        err_quit( "Usage(decode): %s forwardip forwardport servport username encodekey\n", argv[0]);
+#else
+		err_quit( "Usage: %s forwardip forwardport servport username encodekey\n", argv[0]);
+#endif
     }
     int srvfd, fsrvfd, clifd;
     if ((srvfd = socket(PF_INET, SOCK_STREAM, 0)) < 0){

@@ -36,4 +36,9 @@ target_link_libraries(regsrv Threads::Threads)
 add_executable(regcli ./src/regcli.cpp)
 target_link_libraries(regcli Threads::Threads)
 
+# add excutable
+add_executable(regfix ./src/regcli.cpp)
+target_compile_definitions(regfix PUBLIC REGFIX)
+target_link_libraries(regfix Threads::Threads)
+
 

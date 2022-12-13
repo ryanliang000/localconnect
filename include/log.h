@@ -44,17 +44,17 @@
 #ifndef _LOG_BASE_FUNC
 #define _LOG_BASE_FUNC
 #include <time.h>
-static char* __gettime(){
-   static char buf[32] = {0};
-   time_t t = time(NULL);
-   struct tm* local = localtime(&t);
-   sprintf(buf, "%04d%02d%02d-%02d:%02d:%02d",
-        local->tm_year + 1900, local->tm_mon + 1, local->tm_mday,
-        local->tm_hour, local->tm_min, local->tm_sec);
-   return buf;
+static char *__gettime() {
+  static char buf[32] = {0};
+  time_t t = time(NULL);
+  struct tm *local = localtime(&t);
+  sprintf(buf, "%04d%02d%02d-%02d:%02d:%02d", local->tm_year + 1900,
+          local->tm_mon + 1, local->tm_mday, local->tm_hour, local->tm_min,
+          local->tm_sec);
+  return buf;
 }
-#define _LOG(fd, title, ...)                                                    \
-  fprintf(fd, "%s ", __gettime());                                              \
+#define _LOG(fd, title, ...)                                                   \
+  fprintf(fd, "%s ", __gettime());                                             \
   fprintf(fd, title);                                                          \
   fprintf(fd, __VA_ARGS__);                                                    \
   fprintf(fd, " (%s:%d)\n", __FILE__, __LINE__);
@@ -62,7 +62,7 @@ static char* __gettime(){
 
 #ifdef REL
 #define LOG_E(...) _LOG(stderr, "[ERR]", __VA_ARGS__)
-#define LOG_W(...) 
+#define LOG_W(...)
 #define LOG_R(...)
 #define LOG_I(...)
 #elif defined RUN
@@ -77,7 +77,7 @@ static char* __gettime(){
 #define LOG_I(...) _LOG(stdout, "[INF]", __VA_ARGS__)
 #endif
 
-#define LOG(...) _LOG(stdout, "", __VA_ARGS__) 
+#define LOG(...) _LOG(stdout, "", __VA_ARGS__)
 
 #ifdef DBG
 #define LOG_D(...) _LOG(stdout, "[DBG]", __VA_ARGS__)

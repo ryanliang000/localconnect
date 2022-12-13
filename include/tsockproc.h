@@ -1,3 +1,5 @@
+#ifndef _T_SOCKPROC_
+#define _T_SOCKPROC_
 #ifndef TBUFF_LENGTH
 #define TBUFF_LENGTH 65536
 #endif
@@ -91,7 +93,7 @@ int sendsock(tsock &info) {
     tbuf.sendn = tbuf.recvn;
     return 0;
   } else if (num < 0) {
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+    if (errno == 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
       return 1;
     }
     LOG_E("sendsock: fd[%d->%d], len[%d], error[%d-%s]", info.fd, info.dstfd,
@@ -116,19 +118,21 @@ int recvsockandsendencoded(tsock &info, int key) {
       LOG_E("first recv msg empty(%d->%d), close conn", fd, dst);
       return -1;
     }
-    LOG_D("recvandsendencode: (%d->%d) rt-%d len-%d n-%d", fd, dst, rt, info.tbuf.recvn, n);
+    LOG_D("recvandsendencode: (%d->%d) rt-%d len-%d n-%d", fd, dst, rt,
+          info.tbuf.recvn, n);
     if (rt == 1)
       return 0;
-    //LOG_D("recv before encode: %s-%s", info.tbuf.buff, buffer2hex(info.tbuf.buff, info.tbuf.recvn));
+    // LOG_D("recv before encode: %s-%s", info.tbuf.buff,
+    // buffer2hex(info.tbuf.buff, info.tbuf.recvn));
     encodebuffer(info.tbuf.buff, info.tbuf.recvn, key);
-    //LOG_D("after encode: %s-%s", info.tbuf.buff, buffer2hex(info.tbuf.buff, info.tbuf.recvn));
+    // LOG_D("after encode: %s-%s", info.tbuf.buff, buffer2hex(info.tbuf.buff,
+    // info.tbuf.recvn));
     if ((rt = sendsock(info)) != 0) {
       return rt;
     }
   } while (info.tbuf.recvn == TBUFF_LENGTH);
   return 0;
 }
-int recvsockandsend(tsock& info){
-  return recvsockandsendencoded(info, 0);
-}
+int recvsockandsend(tsock &info) { return recvsockandsendencoded(info, 0); }
 
+#endif

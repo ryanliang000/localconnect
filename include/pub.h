@@ -1,17 +1,36 @@
 #ifndef _MY_PUB_H_
 #define _MY_PUB_H_
+#ifdef WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include "log.h"
+#include "xevent.h"
 #include <fcntl.h>
-#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifndef WIN32
+#include <netdb.h>
+#include <netinet/tcp.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <netinet/tcp.h>
-void procperr(int signum) {
-  if (signum == SIGPIPE)
-    LOG_E("fatal error sigpipe, port error[%d-%s]", errno, strerror(errno));
+#include <sys/wait.h>
+
+static inline bool InitSocket() { return true; }
+#else
+#include "winsock2.h"
+#pragma comment(lib, "ws2_32.lib")
+static inline bool InitSocket() {
+  WSADATA wsaData;
+  int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData); // init winsock
+  if (iResult != 0) {
+    LOG_E("WSAStartup failed: %d\n", iResult);
+    return false;
+  }
+  return true;
 }
+#endif
+
 char *buffer2hex(char msg[], int len) {
   static char _hexbuffer[1024 * 3];
   len = len >= 1024 ? 1023 : len;
@@ -28,6 +47,12 @@ void encodebuffer(unsigned char *msg, int len, unsigned char key) {
 }
 void encodebuffer(char *msg, int len, unsigned char key) {
   return encodebuffer((unsigned char *)msg, len, key);
+}
+
+#ifndef WIN32
+void procperr(int signum) {
+  if (signum == SIGPIPE)
+    LOG_E("fatal error sigpipe, port error[%d-%s]", errno, strerror(errno));
 }
 bool getsockaddrfromhost(char *msg, unsigned char bytes, sockaddr_in &serv) {
   struct hostent *host;
@@ -71,13 +96,27 @@ void setsockreuse(int fd) {
   setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 }
 
-
-void setsockkeepalive(int fd, int sec=600, int interval=30, int count=2){ 
-  int opt=1;
+void setsockkeepalive(int fd, int sec = 600, int interval = 30, int count = 2) {
+  int opt = 1;
   setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt));
   setsockopt(fd, SOL_TCP, TCP_KEEPIDLE, &sec, sizeof(sec));
   setsockopt(fd, SOL_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
   setsockopt(fd, SOL_TCP, TCP_KEEPCNT, &count, sizeof(count));
 }
+
+#else // #ifndef WIN32
+#define signal(id, method)                                                     \
+  {}
+#define write(fd, str, len) send(fd, str, len, NULL)
+#define sleep(sec) Sleep(sec * 1000)
+#define close(fd) closesocket(fd)
+void settimeout(int sock, int second, int flag = -1) {}
+#define setsendtimeout(fd, sec) settimeout(fd, sec, SO_SNDTIMEO)
+#define setrecvtimeout(fd, sec) settimeout(fd, sec, SOL_RCVTIMEO);
+void procperr(int signum) {}
+void setsockkeepalive(int fd, int sec = 600, int interval = 30, int count = 2) {
+}
+void setsockreuse(int fd) {}
+#endif
 
 #endif

@@ -39,7 +39,6 @@
 
 #ifndef _X_EVENT_EPOLL_
 #define _X_EVENT_EPOLL_
-    
 
 #if defined(__linux__) || defined(__unix__) || defined(_POSIX_VERSION)
 #include <sys/epoll.h>
@@ -134,7 +133,8 @@ int unregxevent(int fd, xevent_filter filter) {
     epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, &epollevt);
   }
   _fdnums--;
-  LOG_D("unregevent: fd-%d, filter-%s, left-%d", fd, xfilterdesc(filter), _fdnums);
+  LOG_D("unregevent: fd-%d, filter-%s, left-%d", fd, xfilterdesc(filter),
+        _fdnums);
   return 0;
 };
 int unregxevent(int fd) {

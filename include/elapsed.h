@@ -1,5 +1,5 @@
 /*
- * logfunction 
+ * logfunction
  *
  * Copyright (c) 2020 Rain
  * All rights reserved.
@@ -38,48 +38,47 @@
  */
 #ifndef _LOG_FUNCTION_ELAPSED_H_
 #define _LOG_FUNCTION_ELAPSED_H_
+#include "log.h"
+#include <chrono>
 #include <string>
 #include <time.h>
-#include <chrono>
-#include "log.h"
 class Elapsed {
 public:
-	Elapsed(const std::string& desc, bool bRunning = true) :
-        m_desc(desc),
-        m_duration(std::chrono::nanoseconds::zero()){
-        if (bRunning) start_running();
-	}
-	~Elapsed() {
-        total_running();
-        double msec = m_duration.count() / 1000000.0;
-		LOG("used time<%s>: %.3f(ms)", m_desc.c_str(), msec);
-	}
-    void Start() {
-        start_running();
-    }
-    void Stop() {
-        total_running();
-        stop_running();
-    }
+  Elapsed(const std::string &desc, bool bRunning = true)
+      : m_desc(desc), m_duration(std::chrono::nanoseconds::zero()) {
+    if (bRunning)
+      start_running();
+  }
+  ~Elapsed() {
+    total_running();
+    double msec = m_duration.count() / 1000000.0;
+    LOG("used time<%s>: %.3f(ms)", m_desc.c_str(), msec);
+  }
+  void Start() { start_running(); }
+  void Stop() {
+    total_running();
+    stop_running();
+  }
+
 private:
-    void stop_running() {
-        m_bRunning = false;
+  void stop_running() { m_bRunning = false; }
+  void start_running() {
+    m_bRunning = true;
+    m_start = std::chrono::system_clock::now();
+  }
+  void total_running() {
+    if (m_bRunning) {
+      std::chrono::system_clock::time_point end =
+          std::chrono::system_clock::now();
+      m_duration +=
+          std::chrono::duration_cast<std::chrono::nanoseconds>(end - m_start);
+      m_start = end;
     }
-    void start_running(){
-        m_bRunning = true;
-        m_start = std::chrono::system_clock::now();
-    }
-    void total_running(){
-        if (m_bRunning) {
-            std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-            m_duration += std::chrono::duration_cast<std::chrono::nanoseconds>(end - m_start);
-            m_start = end;
-        }
-    }
-    std::chrono::nanoseconds m_duration;
-	std::chrono::system_clock::time_point m_start;
-	std::string m_desc;
-    bool m_bRunning;
+  }
+  std::chrono::nanoseconds m_duration;
+  std::chrono::system_clock::time_point m_start;
+  std::string m_desc;
+  bool m_bRunning;
 };
 
 #endif

@@ -15,7 +15,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 #define MAXLINE 4096
 static void err_doit(int, const char *, va_list);

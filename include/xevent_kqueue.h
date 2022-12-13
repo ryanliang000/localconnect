@@ -132,7 +132,8 @@ int unregxevent(int fd, xevent_filter filter) {
   struct kevent kevt = buildkevent(fd, filter, xaction_del);
   kevent(_epfd, &kevt, 1, NULL, 0, NULL);
   _fdnums--;
-  LOG_D("unregevent: fd-%d, filter-%s, left-%d", fd, xfilterdesc(filter), _fdnums);
+  LOG_D("unregevent: fd-%d, filter-%s, left-%d", fd, xfilterdesc(filter),
+        _fdnums);
   return 0;
 };
 int unregxevent(int fd) {

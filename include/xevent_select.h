@@ -41,12 +41,12 @@
 #define _X_EVENT_SELECT_
 
 #if defined(_WIN32) || defined(_WIN64)
-  #ifndef FD_SETSIZE
-  #define FD_SETSIZE MAX_EVENT_POOL
-  #endif
-  #include "winsock2.h"
+#ifndef FD_SETSIZE
+#define FD_SETSIZE MAX_EVENT_POOL
+#endif
+#include "winsock2.h"
 #else
-  #include <sys/select.h>
+#include <sys/select.h>
 #endif
 
 fd_set _readset;
@@ -55,41 +55,37 @@ fd_set _exceptset;
 int _maxfd = 0;
 int _minfd = 0;
 
-int xfilter2filter(int xfilter) {
-  return xfilter;
-}
-xevent_filter filter2xfilter(int kfilter) {
-  return (xevent_filter)kfilter;
-}
+int xfilter2filter(int xfilter) { return xfilter; }
+xevent_filter filter2xfilter(int kfilter) { return (xevent_filter)kfilter; }
 
-void removexevent(int fd, int filter){
-  if (fd == -1 || filter == -1) 
-    return;
-  switch(filter){
-    case xfilter_read:
-      FD_CLR(fd, &_readset);
-      break;
-    case xfilter_write:
-      FD_CLR(fd, &_writeset);
-      break;
-    case xfilter_error:
-      FD_CLR(fd, &_exceptset);
-      break;
-  }
-}
-void addxevent(int fd, int filter){
+void removexevent(int fd, int filter) {
   if (fd == -1 || filter == -1)
     return;
-  switch(filter){
-    case xfilter_read:
-      FD_SET(fd, &_readset);
-      break;
-    case xfilter_write:
-      FD_SET(fd, &_writeset);
-      break;
-    case xfilter_error:
-      FD_SET(fd, &_exceptset);
-      break;
+  switch (filter) {
+  case xfilter_read:
+    FD_CLR(fd, &_readset);
+    break;
+  case xfilter_write:
+    FD_CLR(fd, &_writeset);
+    break;
+  case xfilter_error:
+    FD_CLR(fd, &_exceptset);
+    break;
+  }
+}
+void addxevent(int fd, int filter) {
+  if (fd == -1 || filter == -1)
+    return;
+  switch (filter) {
+  case xfilter_read:
+    FD_SET(fd, &_readset);
+    break;
+  case xfilter_write:
+    FD_SET(fd, &_writeset);
+    break;
+  case xfilter_error:
+    FD_SET(fd, &_exceptset);
+    break;
   }
   _maxfd = _maxfd >= fd ? _maxfd : (fd + 1);
   _minfd = _minfd < fd ? _minfd : fd;
@@ -148,11 +144,12 @@ int unregxevent(int fd, xevent_filter filter) {
   }
   // remove data
   evt.funcs[filter].reset();
-  
+
   // remove event
   removexevent(fd, filter);
   _fdnums--;
-  LOG_D("unregevent: fd-%d, filter-%s, left-%d", fd, xfilterdesc(filter), _fdnums);
+  LOG_D("unregevent: fd-%d, filter-%s, left-%d", fd, xfilterdesc(filter),
+        _fdnums);
   return 0;
 };
 int unregxevent(int fd) {
@@ -194,14 +191,14 @@ int call_event_func(int fd, xevent_filter filter) {
   }
   return 0;
 }
-void recalcmaxfd(){
-  xevent* p = xeventpool();
+void recalcmaxfd() {
+  xevent *p = xeventpool();
   _maxfd = 0;
   int fd = -1;
-  for (int i=0; i<MAX_EVENT_POOL; i++){
-    fd = (p+i)->fd;
-    if (fd != -1){
-      _maxfd = (_maxfd >= fd) ? _maxfd : (fd+1);
+  for (int i = 0; i < MAX_EVENT_POOL; i++) {
+    fd = (p + i)->fd;
+    if (fd != -1) {
+      _maxfd = (_maxfd >= fd) ? _maxfd : (fd + 1);
       _minfd = _minfd < fd ? _minfd : fd;
     }
   }
@@ -216,21 +213,21 @@ int dispatchxevent(int timeoutsecond) {
   fd_set writeset = _writeset;
   fd_set exceptset = _exceptset;
   int nfds = select(_maxfd, &readset, &writeset, &exceptset, &tm);
-  if (nfds <= 0){
+  if (nfds <= 0) {
     return 0;
   }
   static int recalc = 0;
-  for (int i= _minfd; i<_maxfd; i++){
-    if (FD_ISSET(i, &readset)){
+  for (int i = _minfd; i < _maxfd; i++) {
+    if (FD_ISSET(i, &readset)) {
       call_event_func(i, xfilter_read);
     }
-    if (FD_ISSET(i, &writeset)){
+    if (FD_ISSET(i, &writeset)) {
       call_event_func(i, xfilter_write);
     }
-    if (FD_ISSET(i, &exceptset)){
+    if (FD_ISSET(i, &exceptset)) {
       call_event_func(i, xfilter_error);
     }
-    if (recalc++ > 5000){
+    if (recalc++ > 5000) {
       recalc = 0;
       recalcmaxfd();
     }

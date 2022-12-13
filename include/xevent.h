@@ -78,12 +78,12 @@ struct xevent {
     }
     return false;
   }
-  char* desc(){
+  char *desc() {
     static char _desc[64] = {0};
     sprintf(_desc, "fd=%d, filters:", fd);
-    for (int i=0; i<xfilter_count; i++)
+    for (int i = 0; i < xfilter_count; i++)
       sprintf(_desc + strlen(_desc), "%d ", funcs[i].filter);
-    return _desc;  
+    return _desc;
   }
 };
 struct xevent _xeventpool[MAX_EVENT_POOL];
@@ -115,14 +115,14 @@ int dispatchxevent(int timeoutsecond);
 int xfilter2filter(int xfilter);
 xevent_filter filter2xfilter(int kfilter);
 // valid reg number
-int xeventnum(){return _fdnums;}
+int xeventnum() { return _fdnums; }
 
 #if defined(__APPLE__)
-  #include "xevent_kqueue.h"
+#include "xevent_kqueue.h"
 #elif defined(__linux__) || defined(__unix__) || defined(_POSIX_VERSION)
-  #include "xevent_epoll.h"
+#include "xevent_epoll.h"
 #else
-  #include "xevent_select.h"
+#include "xevent_select.h"
 #endif // end
 
 #endif // end #define __X_EVENT__
